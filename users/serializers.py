@@ -46,9 +46,17 @@ class UserProfileListSearchSerializer(serializers.ModelSerializer):
 
 class UserSearchSerializer(serializers.ModelSerializer):
     userprofile = UserProfileListSearchSerializer()
+    is_friends_with = serializers.SerializerMethodField()
+
+    def get_is_friends_with(self, obj):
+        userprofile = self.context['request'].user.userprofile
+        if userprofile.friends.filter(pk=obj.id).exists():
+            return True
+        else:
+            return False
     class Meta:
         model = User
-        fields = ['pk', 'username', 'email', 'userprofile']
+        fields = ['pk', 'username', 'email', 'userprofile', 'is_friends_with']
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
