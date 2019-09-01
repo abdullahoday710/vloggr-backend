@@ -9,6 +9,9 @@ class CreateVlogView(CreateAPIView):
     #permission_classes = [AllowAny]
     serializer_class = VlogSerializer
 
+
+
+
 class ListVlogView(ListAPIView):
 
     permission_classes = [AllowAny]

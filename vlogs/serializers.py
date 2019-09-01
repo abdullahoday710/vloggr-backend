@@ -19,10 +19,10 @@ class VlogSerializer(serializers.ModelSerializer):
     cipher_object = serializers.JSONField
     class Meta:
         model = Vlog
-        fields = ['file', "thumbnail", 'cipher_object','pk']
+        fields = ['file', "thumbnail", 'cipher_object', 'timestamp', 'pk']
 
     def create(self, validated_data):
-        vlog = Vlog.objects.create(file=validated_data['file'], thumbnail=validated_data['thumbnail'], cipher_object=validated_data['cipher_object'], user=self.context['request'].user.userprofile)
+        vlog = Vlog.objects.create(file=validated_data['file'], thumbnail=validated_data['thumbnail'], cipher_object=validated_data['cipher_object'], user=self.context['request'].user.userprofile, timestamp=validated_data['timestamp'])
         vlog.save()
         return vlog
 
@@ -33,7 +33,7 @@ class VlogListSerializer(serializers.ModelSerializer):
     thumb_filename = serializers.SerializerMethodField()
     class Meta:
         model = Vlog
-        fields = ['file', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename"]
+        fields = ['file', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "timestamp"]
 
     def get_filename(self, obj):
         return obj.file.name

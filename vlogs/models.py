@@ -9,3 +9,4 @@ class Vlog(models.Model):
     file = models.FileField(blank=False, null=False)
     thumbnail = models.FileField()
     cipher_object = JSONField()
+    timestamp = models.CharField(max_length=50)
