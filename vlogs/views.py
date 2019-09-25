@@ -14,7 +14,7 @@ class CreateVlogView(CreateAPIView):
 
 class ListVlogView(ListAPIView):
 
-    permission_classes = [AllowAny]
+    #permission_classes = [AllowAny]
     serializer_class = VlogListSerializer
 
     def get_queryset(self):
