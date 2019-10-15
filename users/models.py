@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from bcrypt import gensalt
 from django.contrib.postgres.fields import JSONField
+import uuid
 # Create your models here.
 
 class UserProfile(models.Model):
@@ -13,13 +14,12 @@ class UserProfile(models.Model):
     salt = models.CharField(max_length=250, default=' ')
     iv = models.CharField(max_length=250, default=' ')
     friends = models.ManyToManyField(User, related_name="friendlist")
+    invite_code = models.UUIDField()
+    profile_picture = models.FileField(blank=True, null=True)
     def __str__(self):
         return self.user.username
 
-class File(models.Model):
-    file = models.FileField(blank=False, null=False)
-    def __str__(self):
-        return self.file.name
+
 
 
 
@@ -39,5 +39,5 @@ class FriendNotification(models.Model):
 @receiver(post_save, sender=User)
 def build_profile_on_user_creation(sender, instance, created, **kwargs):
   if created:
-    profile = UserProfile(user=instance)
+    profile = UserProfile(user=instance, invite_code=uuid.uuid4())
     profile.save()

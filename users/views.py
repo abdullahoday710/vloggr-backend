@@ -1,3 +1,5 @@
+import uuid
+
 from django.shortcuts import render
 from rest_framework.generics import (RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, ListAPIView)
 from rest_framework.views import APIView
@@ -10,7 +12,9 @@ from .serializers import (UserProfileSerializer,
  FriendNotificationAcceptSerializer,
  FriendNotificationListSerializer,
  UserProfileListSerializer,
- UserSearchSerializer,
+ FriendListSerializer,
+ UserPictureSerializer,
+ CurrentUserProfileSerializer,
  )
 
 
@@ -19,10 +23,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, filters
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
-
-from .serializers import FileSerializer
-
+from .permissions import IsOwnerOrReadOnly
 # Create your views here.
 class UserProfileRetrieveView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
@@ -33,30 +36,47 @@ class UserCreateView(CreateAPIView):
     serializer_class = UserCreateSerializer
 
 class UserProfileUpdateView(UpdateAPIView):
-    # TODO: add owner or read only permission later
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileUpdateSerializer
 
+class ChangeProfilePicture(UpdateAPIView):
+    permission_classes = [IsOwnerOrReadOnly]
+    queryset = UserProfile.objects.all()
+    serializer_class = UserPictureSerializer
+
+
 class CurrentUserView(APIView):
     def get(self, request):
-        serializer = UserProfileSerializer(request.user.userprofile)
+        serializer = CurrentUserProfileSerializer(request.user.userprofile)
         return Response(serializer.data)
 
-
+class FriendListView(ListAPIView):
+    serializer_class = FriendListSerializer
+    def get_queryset(self):
+        user = self.request.user.userprofile
+        return UserProfile.objects.filter(pk=user.pk)
 
 
 class CreateFriendRequestView(CreateAPIView):
     serializer_class = FriendNotificationCreateSerializer
     def create(self, request, *args, **kwargs):
         # checking if a FriendNotification object exist with the current sender/receiver
-        if FriendNotification.objects.filter(sender=request.user.userprofile, receiver=request.data['receiver']).exists():
+        receiver = get_object_or_404(UserProfile,invite_code=request.data['receiver'])
+
+        if FriendNotification.objects.filter(sender=request.user.userprofile, receiver=receiver).exists():
             return Response({"info": "You are already sent friend request to this person"}, status=403)
-        # checking if the users are "friends"
-        elif request.user.userprofile.friends.filter(pk=request.data['receiver']).exists():
+            # checking if the users are "friends"
+        elif request.user.userprofile.friends.filter(pk=receiver.pk).exists():
             return Response({"info": "You are already friends with this person"}, status=403)
         else:
+            # creating the friend request
             response = super(CreateFriendRequestView, self).create(request, *args, **kwargs)
+            # updating the receiver invite code because the old one is used.
+            receiver.invite_code = uuid.uuid4()
+            receiver.save()
             return response
+
 
 class AcceptFriendRequestView(UpdateAPIView):
     queryset = FriendNotification.objects.all()
@@ -89,26 +109,3 @@ class FriendNotificationListView(ListAPIView):
     def get_queryset(self):
         user = self.request.user.userprofile
         return FriendNotification.objects.filter(receiver=user)
-
-
-
-class UserSearchView(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSearchSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['username', 'email']
-class FileUploadView(APIView):
-    permission_classes = [AllowAny]
-    parser_class = (FileUploadParser,)
-
-    methods = ['POST']
-
-    def post(self, request, *args, **kwargs):
-
-      file_serializer = FileSerializer(data=request.data)
-
-      if file_serializer.is_valid():
-          file_serializer.save()
-          return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-      else:
-          return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, File, FriendNotification
+from .models import UserProfile, FriendNotification
 # Register your models here.
 admin.site.register(UserProfile)
-admin.site.register(File)
 admin.site.register(FriendNotification)
