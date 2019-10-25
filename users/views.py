@@ -65,16 +65,20 @@ class CreateFriendRequestView(CreateAPIView):
         receiver = get_object_or_404(UserProfile,invite_code=request.data['receiver'])
 
         if FriendNotification.objects.filter(sender=request.user.userprofile, receiver=receiver).exists():
-            return Response({"info": "You are already sent friend request to this person"}, status=403)
+            return Response({"info": "You already sent friend request to this person","profile_pic":receiver.profile_picture.url,"username":receiver.user.username}, status=403)
             # checking if the users are "friends"
         elif request.user.userprofile.friends.filter(pk=receiver.pk).exists():
-            return Response({"info": "You are already friends with this person"}, status=403)
+            return Response({"info": "You are already friends with this person","profile_pic":receiver.profile_picture.url,"username":receiver.user.username}, status=403)
+        elif request.data['receiver'] == str(request.user.userprofile.invite_code):
+            return Response({"info": "You are not allowed to send friend requests to yourself.","profile_pic":receiver.profile_picture.url,"username":receiver.user.username}, status=403)
+
         else:
             # creating the friend request
-            response = super(CreateFriendRequestView, self).create(request, *args, **kwargs)
+            super(CreateFriendRequestView, self).create(request, *args, **kwargs)
             # updating the receiver invite code because the old one is used.
             receiver.invite_code = uuid.uuid4()
             receiver.save()
+            response = Response({"info":"sent","profile_pic":receiver.profile_picture.url,"username":receiver.user.username})
             return response
 
 
