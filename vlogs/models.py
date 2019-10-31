@@ -6,9 +6,10 @@ from jsonfield import JSONField
 #
 class Vlog(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    playlist = models.FileField(blank=False, null=False)
-    thumbnail = models.FileField()
-    cipher_object = JSONField()
+    playlist = models.FileField(default="none")
+    thumbnail = models.FileField(default="none")
+    cipher_object = JSONField(default="none")
+    shared_with = models.ManyToManyField(UserProfile, related_name="shared_with",blank=True,null=True)
 
 class Segment(models.Model):
     vlog = models.ForeignKey(Vlog, on_delete=models.CASCADE, related_name="segments")

@@ -22,7 +22,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserProfileFriendListSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['public_key','profile_picture']
+        fields = ['pk','public_key','profile_picture']
 
 class UserFriendListSerializer(serializers.ModelSerializer):
     userprofile = UserProfileFriendListSerializer()
