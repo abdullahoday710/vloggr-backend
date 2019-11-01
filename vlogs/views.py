@@ -25,3 +25,13 @@ class ListVlogView(ListAPIView):
         user = self.request.user
         return Vlog.objects.filter(user=user.userprofile)
         #return Vlog.objects.all()
+
+class ListSharedWithVlogView(ListAPIView):
+
+    #permission_classes = [AllowAny]
+    serializer_class = VlogListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Vlog.objects.filter(shared_with=user.userprofile)
+        #return Vlog.objects.all()

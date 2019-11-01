@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Vlog,Segment
 from users.models import UserProfile
+from django.contrib.auth.models import User
 import json
 
 class JSONSerializerField(serializers.Field):
@@ -19,11 +20,15 @@ class SegmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Segment
         fields = ['file']
-
+class userShareWithSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username']
 class UserProfileShareWithSerializer(serializers.ModelSerializer):
+    user = userShareWithSerializer()
     class Meta:
         model = UserProfile
-        fields = ['pk']
+        fields = ['user','pk', 'profile_picture', 'iv']
 class VlogSerializer(serializers.ModelSerializer):
     segments = SegmentSerializer(many=True, read_only=True)
     cipher_object = serializers.JSONField
@@ -54,9 +59,10 @@ class VlogListSerializer(serializers.ModelSerializer):
     filename = serializers.SerializerMethodField()
     thumb_filename = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    user = UserProfileShareWithSerializer(read_only=True)
     class Meta:
         model = Vlog
-        fields = ['playlist', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "type"]
+        fields = ['user','playlist', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "type"]
     def get_type(self, obj):
         return "vlog"
     def get_filename(self, obj):
