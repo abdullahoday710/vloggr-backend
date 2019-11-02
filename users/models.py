@@ -16,10 +16,9 @@ class UserProfile(models.Model):
     friends = models.ManyToManyField(User, related_name="friendlist")
     invite_code = models.UUIDField()
     profile_picture = models.FileField(blank=True, null=True)
+    fcm_token = models.CharField(blank=True,null=True,max_length=255)
     def __str__(self):
         return self.user.username
-
-
 
 
 
@@ -27,12 +26,6 @@ class FriendNotification(models.Model):
     sender = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="receiver")
     accepted = models.BooleanField(default=False)
-
-
-
-
-
-
 
 
 

@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.authtoken import views
-from .views import UserProfileRetrieveView, UserCreateView, UserProfileUpdateView, CurrentUserView,CreateFriendRequestView,AcceptFriendRequestView, DeclineFriendRequestView, FriendNotificationListView, FriendListView, ChangeProfilePicture
+from .views import UserProfileRetrieveView, UserCreateView, UserProfileUpdateView, CurrentUserView,CreateFriendRequestView,AcceptFriendRequestView, DeclineFriendRequestView, FriendNotificationListView, FriendListView, ChangeProfilePicture,UpdateFcmTokenView
 urlpatterns = [
     path('login/', views.obtain_auth_token),
     path('register/', UserCreateView.as_view()),
@@ -13,4 +13,5 @@ urlpatterns = [
     path('friend-requests', FriendNotificationListView.as_view()),
     path('list-friends/', FriendListView.as_view()),
     path('change-profile-picture/<int:pk>', ChangeProfilePicture.as_view()),
+    path('update-fcm-token/', UpdateFcmTokenView.as_view())
 ]

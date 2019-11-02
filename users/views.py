@@ -1,7 +1,8 @@
 import uuid
 
 from django.shortcuts import render
-from rest_framework.generics import (RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, ListAPIView)
+from rest_framework.generics import (RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, ListAPIView,GenericAPIView)
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .models import UserProfile, FriendNotification
@@ -15,6 +16,7 @@ from .serializers import (UserProfileSerializer,
  FriendListSerializer,
  UserPictureSerializer,
  CurrentUserProfileSerializer,
+ UpdateFcmTokenSerializer,
  )
 
 
@@ -39,6 +41,16 @@ class UserProfileUpdateView(UpdateAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileUpdateSerializer
+
+class UpdateFcmTokenView(GenericAPIView, UpdateModelMixin):
+    permission_classes = [IsOwnerOrReadOnly]
+    serializer_class = UpdateFcmTokenSerializer
+    def get_object(self):
+        user = self.request.user.userprofile
+        return UserProfile.objects.get(pk=user.pk)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
 class ChangeProfilePicture(UpdateAPIView):
     permission_classes = [IsOwnerOrReadOnly]

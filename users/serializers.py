@@ -131,3 +131,9 @@ class FriendNotificationListSerializer(serializers.ModelSerializer):
 
     def get_decline_url(self, obj):
         return reverse('decline-friend', args=[obj.id], request=self.context['request'])
+
+
+class UpdateFcmTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['fcm_token']
