@@ -4,32 +4,28 @@ from users.models import UserProfile
 from django.contrib.auth.models import User
 import json
 from pyfcm import FCMNotification
+
 push_service = FCMNotification(api_key="AAAAZTWbYVk:APA91bGMF7cH4DZwszkiMyysKIoh8rU55OiXr-F4_lQiWiBZ9_cNYFeuLQi87ApCDCF0SM2yBPFSJ6-ToNd1_8wJaWe2vPj90qz4oDF0IwJIuXBn6_k08JQJAC-2LnSLfyIEr77kTLk8")
-class JSONSerializerField(serializers.Field):
-
-    def to_representation(self, obj):
-        try:
-            return json.loads(obj)
-        except (ValueError, Exception) as e:
-            # log exception
-            return obj
-
-    def to_internal_value(self, data):
-        return data
 
 class SegmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Segment
         fields = ['file']
+
+
 class userShareWithSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username']
+
+
 class UserProfileShareWithSerializer(serializers.ModelSerializer):
     user = userShareWithSerializer()
     class Meta:
         model = UserProfile
         fields = ['user','pk', 'profile_picture', 'iv']
+
+
 class VlogSerializer(serializers.ModelSerializer):
     segments = SegmentSerializer(many=True, read_only=True)
     cipher_object = serializers.JSONField
@@ -44,13 +40,15 @@ class VlogSerializer(serializers.ModelSerializer):
         if shared_with_data:
             shared_with_data = json.loads(shared_with_data)
             users = UserProfile.objects.filter(pk__in=shared_with_data)
+            # FCM notification title and body
+            message_title = self.context['request'].user.username
+            message_body = "has shared a vlog with you"
             for userprofile in users:
                 vlog.shared_with.add(userprofile)
                 #FCM PUSH NOTIFICATION
                 registration_id = userprofile.fcm_token
-                message_title = self.context['request'].user.username
-                message_body = "has shared a vlog with you"
-                result = push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
+                if registration_id:
+                    push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
         segments_data = self.context.get('view').request.FILES
         for segment_data in segments_data.values():
             if segment_data.name.endswith(".ts"):

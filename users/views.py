@@ -1,25 +1,29 @@
 import uuid
 
 from django.shortcuts import render
-from rest_framework.generics import (RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView, ListAPIView,GenericAPIView)
+from rest_framework.generics import (RetrieveAPIView,
+CreateAPIView,
+UpdateAPIView,
+DestroyAPIView,
+ListAPIView,
+GenericAPIView,
+)
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .models import UserProfile, FriendNotification
 from .serializers import (UserProfileSerializer,
- UserCreateSerializer,
- UserProfileUpdateSerializer,
- FriendNotificationCreateSerializer,
- FriendNotificationAcceptSerializer,
- FriendNotificationListSerializer,
- UserProfileListSerializer,
- FriendListSerializer,
- UserPictureSerializer,
- CurrentUserProfileSerializer,
- UpdateFcmTokenSerializer,
- )
-
-
+UserCreateSerializer,
+UserProfileUpdateSerializer,
+FriendNotificationCreateSerializer,
+FriendNotificationAcceptSerializer,
+FriendNotificationListSerializer,
+UserProfileListSerializer,
+FriendListSerializer,
+UserPictureSerializer,
+CurrentUserProfileSerializer,
+UpdateFcmTokenSerializer,
+)
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,19 +32,23 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from .permissions import IsOwnerOrReadOnly
-# Create your views here.
+
+
 class UserProfileRetrieveView(RetrieveAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
+
 
 class UserCreateView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserCreateSerializer
 
+
 class UserProfileUpdateView(UpdateAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileUpdateSerializer
+
 
 class UpdateFcmTokenView(GenericAPIView, UpdateModelMixin):
     permission_classes = [IsOwnerOrReadOnly]
@@ -52,6 +60,7 @@ class UpdateFcmTokenView(GenericAPIView, UpdateModelMixin):
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
+
 class ChangeProfilePicture(UpdateAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     queryset = UserProfile.objects.all()
@@ -62,6 +71,7 @@ class CurrentUserView(APIView):
     def get(self, request):
         serializer = CurrentUserProfileSerializer(request.user.userprofile)
         return Response(serializer.data)
+
 
 class FriendListView(ListAPIView):
     serializer_class = FriendListSerializer
@@ -116,8 +126,6 @@ class AcceptFriendRequestView(UpdateAPIView):
 class DeclineFriendRequestView(DestroyAPIView):
     queryset = FriendNotification.objects.all()
     serializer_class = FriendNotificationAcceptSerializer
-
-
 
 
 class FriendNotificationListView(ListAPIView):

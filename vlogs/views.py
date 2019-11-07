@@ -5,10 +5,9 @@ from rest_framework.permissions import AllowAny
 from .models import Vlog
 from rest_framework.response import Response
 from rest_framework import status
-# Create your views here.
+
 
 class CreateVlogView(CreateAPIView):
-    permission_classes = [AllowAny]
     serializer_class = VlogSerializer
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
