@@ -1,6 +1,6 @@
 media/
 db.sqlite3
 *.pyc
-
+**__pycache__**
 # migrations
 0*.py
