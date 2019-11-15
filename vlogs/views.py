@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from rest_framework.generics import CreateAPIView, ListAPIView
-from .serializers import VlogSerializer, VlogListSerializer
+from rest_framework.generics import CreateAPIView, ListAPIView,UpdateAPIView
+from .serializers import VlogSerializer, VlogListSerializer, AlbumCreateSerializer
 from rest_framework.permissions import AllowAny
 from .models import Vlog
 from rest_framework.response import Response
@@ -15,15 +15,15 @@ class CreateVlogView(CreateAPIView):
         self.perform_create(serializer)
         return Response({'info': 'sucess'}, status=status.HTTP_201_CREATED)
 
+class UpdateVlogView(UpdateAPIView):
+    serializer_class = VlogSerializer
+    queryset = Vlog.objects.all()
 class ListVlogView(ListAPIView):
-
-    #permission_classes = [AllowAny]
     serializer_class = VlogListSerializer
 
     def get_queryset(self):
         user = self.request.user
         return Vlog.objects.filter(user=user.userprofile)
-        #return Vlog.objects.all()
 
 class ListSharedWithVlogView(ListAPIView):
 
@@ -34,3 +34,6 @@ class ListSharedWithVlogView(ListAPIView):
         user = self.request.user
         return Vlog.objects.filter(shared_with=user.userprofile)
         #return Vlog.objects.all()
+
+class CreateAlbumView(CreateAPIView):
+    serializer_class = AlbumCreateSerializer

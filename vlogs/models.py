@@ -3,13 +3,22 @@ from users.models import UserProfile
 
 from jsonfield import JSONField
 # Create your models here.
-#
+
+class Album(models.Model):
+    name = models.CharField(max_length=30)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.user.username + " - {}".format(self.name)
+
+
 class Vlog(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     playlist = models.FileField(default="none")
     thumbnail = models.FileField(default="none")
     cipher_object = JSONField(default="none")
     shared_with = models.ManyToManyField(UserProfile, related_name="shared_with",blank=True)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.user.user.username + "'s vlog object (pk {})".format(self.pk)

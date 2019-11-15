@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vlog,Segment
+from .models import Vlog,Segment,Album
 from users.models import UserProfile
 from django.contrib.auth.models import User
 import json
@@ -29,10 +29,11 @@ class UserProfileShareWithSerializer(serializers.ModelSerializer):
 class VlogSerializer(serializers.ModelSerializer):
     segments = SegmentSerializer(many=True, read_only=True)
     cipher_object = serializers.JSONField
-    shared_with = serializers.CharField()
+    shared_with = serializers.CharField(required=False)
+    album = serializers.IntegerField(required=False)
     class Meta:
         model = Vlog
-        fields = ['playlist', "thumbnail", 'cipher_object', 'pk','segments','shared_with']
+        fields = ['playlist', "thumbnail", 'cipher_object', 'pk','segments','shared_with','album']
 
     def create(self, validated_data):
         vlog = Vlog.objects.create(playlist=validated_data['playlist'], thumbnail=validated_data['thumbnail'], cipher_object=validated_data['cipher_object'], user=self.context['request'].user.userprofile)
@@ -56,6 +57,11 @@ class VlogSerializer(serializers.ModelSerializer):
         vlog.save()
         return vlog
 
+    def update(self, instance, validated_data):
+        album = Album.objects.get(pk=validated_data['album'])
+        instance.album = album
+        instance.save()
+        return instance.pk
 
 class VlogListSerializer(serializers.ModelSerializer):
     cipher_object = serializers.JSONField
@@ -72,3 +78,13 @@ class VlogListSerializer(serializers.ModelSerializer):
         return obj.playlist.name
     def get_thumb_filename(self, obj):
         return obj.thumbnail.name
+
+class AlbumCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = ['name']
+
+    def create(self,validated_data):
+        album = Album.objects.create(user=self.context['request'].user.userprofile, name=validated_data['name'])
+        album.save()
+        return album
