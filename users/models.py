@@ -15,7 +15,7 @@ class UserProfile(models.Model):
     iv = models.CharField(max_length=250, default=' ')
     friends = models.ManyToManyField(User, related_name="friendlist")
     invite_code = models.UUIDField()
-    profile_picture = models.FileField(blank=True, null=True)
+    profile_picture = models.FileField(blank=True, null=True, default='anon.jpg')
     fcm_token = models.CharField(blank=True,null=True,max_length=255)
     def __str__(self):
         return self.user.username
