@@ -19,6 +19,7 @@ class Vlog(models.Model):
     cipher_object = JSONField(default="none")
     shared_with = models.ManyToManyField(UserProfile, related_name="shared_with",blank=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.user.username + "'s vlog object (pk {})".format(self.pk)

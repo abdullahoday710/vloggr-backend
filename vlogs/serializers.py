@@ -2,10 +2,18 @@ from rest_framework import serializers
 from .models import Vlog,Segment,Album
 from users.models import UserProfile
 from django.contrib.auth.models import User
+from django.utils import timezone
 import json
 from pyfcm import FCMNotification
 
 push_service = FCMNotification(api_key="AAAAZTWbYVk:APA91bGMF7cH4DZwszkiMyysKIoh8rU55OiXr-F4_lQiWiBZ9_cNYFeuLQi87ApCDCF0SM2yBPFSJ6-ToNd1_8wJaWe2vPj90qz4oDF0IwJIuXBn6_k08JQJAC-2LnSLfyIEr77kTLk8")
+
+class DateTimeFieldWihTZ(serializers.DateTimeField):
+    '''Class to make output of a DateTime Field timezone aware
+    '''
+    def to_representation(self, value):
+        value = timezone.localtime(value)
+        return super(DateTimeFieldWihTZ, self).to_representation(value)
 
 class SegmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,9 +77,10 @@ class VlogListSerializer(serializers.ModelSerializer):
     thumb_filename = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
     user = UserProfileShareWithSerializer(read_only=True)
+    timestamp = DateTimeFieldWihTZ(format='%b %d %Y at %I:%M %p')
     class Meta:
         model = Vlog
-        fields = ['user','playlist', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "type"]
+        fields = ['user','playlist', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "type", 'timestamp']
     def get_type(self, obj):
         return "vlog"
     def get_filename(self, obj):
