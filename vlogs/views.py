@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, ListAPIView,UpdateAPIView
-from .serializers import VlogSerializer, VlogListSerializer, AlbumCreateSerializer
+from .serializers import (VlogSerializer,
+VlogListSerializer,
+AlbumCreateSerializer,
+PhotoSerializer)
 from rest_framework.permissions import AllowAny
 from .models import Vlog
 from rest_framework.response import Response
@@ -9,6 +12,14 @@ from rest_framework import status
 
 class CreateVlogView(CreateAPIView):
     serializer_class = VlogSerializer
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({'info': 'sucess'}, status=status.HTTP_201_CREATED)
+
+class CreatePhotoView(CreateAPIView):
+    serializer_class = PhotoSerializer
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

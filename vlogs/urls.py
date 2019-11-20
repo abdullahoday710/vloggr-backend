@@ -1,4 +1,9 @@
-from .views import CreateVlogView, ListVlogView, ListSharedWithVlogView, CreateAlbumView, UpdateVlogView
+from .views import (CreateVlogView,
+ListVlogView,
+ListSharedWithVlogView,
+CreateAlbumView,
+UpdateVlogView,
+CreatePhotoView,)
 from django.urls import path
 
 urlpatterns = [
@@ -6,5 +11,6 @@ urlpatterns = [
     path('list-vlog/', ListVlogView.as_view()),
     path('shared-with-me/',ListSharedWithVlogView.as_view()),
     path('create-album/',CreateAlbumView.as_view()),
-    path('update-vlog/<int:pk>',UpdateVlogView.as_view())
+    path('update-vlog/<int:pk>',UpdateVlogView.as_view()),
+    path('create-photo/', CreatePhotoView.as_view()),
 ]
