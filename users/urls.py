@@ -10,7 +10,7 @@ urlpatterns = [
     path('add-friend/', CreateFriendRequestView.as_view()),
     path('accept-friend/<int:pk>', AcceptFriendRequestView.as_view(), name='accept-friend'),
     path('decline-friend/<int:pk>', DeclineFriendRequestView.as_view(), name='decline-friend'),
-    path('friend-requests', FriendNotificationListView.as_view()),
+    path('friend-requests/', FriendNotificationListView.as_view()),
     path('list-friends/', FriendListView.as_view()),
     path('change-profile-picture/<int:pk>', ChangeProfilePicture.as_view()),
     path('update-fcm-token/', UpdateFcmTokenView.as_view())

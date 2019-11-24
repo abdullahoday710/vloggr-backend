@@ -29,15 +29,17 @@ class UserFriendListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['pk', 'username', 'email', 'userprofile']
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['pk', 'username', 'email']
+
 class UserProfileListSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     class Meta:
         model = UserProfile
-        fields = ['user', 'public_key']
+        fields = ['user', 'public_key', 'profile_picture']
 
 class FriendListSerializer(serializers.ModelSerializer):
     friends = UserFriendListSerializer(many=True)
@@ -57,23 +59,6 @@ class CurrentUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['user', 'public_key', 'private_key', 'salt', 'iv', 'profile_picture', 'invite_code', 'friends']
-
-class UserProfileListSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    class Meta:
-        model = UserProfile
-        fields = ['user', 'public_key']
-
-
-    def get_is_friends_with(self, obj):
-        userprofile = self.context['request'].user.userprofile
-        if userprofile.friends.filter(pk=obj.id).exists():
-            return True
-        else:
-            return False
-    class Meta:
-        model = User
-        fields = ['pk', 'username', 'email', 'userprofile', 'is_friends_with']
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
