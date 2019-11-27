@@ -15,18 +15,14 @@ class SegmentSerializer(serializers.ModelSerializer):
         fields = ['file']
 
 
-class userShareWithSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username']
-
-
 class UserProfileShareWithSerializer(serializers.ModelSerializer):
-    user = userShareWithSerializer()
+    username = serializers.SerializerMethodField()
     class Meta:
         model = UserProfile
-        fields = ['user','pk', 'profile_picture', 'iv']
+        fields = ['username','pk', 'profile_picture', 'iv']
 
+    def get_username(self, obj):
+        return "{} {}".format(obj.first_name, obj.last_name)
 class PhotoSerializer(serializers.ModelSerializer):
     cipher_object = serializers.JSONField
     shared_with = serializers.CharField(required=False)
@@ -41,7 +37,6 @@ class PhotoSerializer(serializers.ModelSerializer):
         file = validated_data['file'],
         iv = validated_data['iv'],
         user = self.context['request'].user.userprofile)
-
         if "album" in validated_data.keys():
             album = Album.objects.get(pk=validated_data['album'])
             photo.album = album
@@ -50,7 +45,9 @@ class PhotoSerializer(serializers.ModelSerializer):
             shared_with_data = json.loads(validated_data['shared_with'])
             users = UserProfile.objects.filter(pk__in=shared_with_data)
             # FCM notification title and body
-            message_title = self.context['request'].user.username
+            user = self.context['request'].user.userprofile
+            username = "{} {}".format(user.first_name, user.last_name)
+            message_title = username
             message_body = "has shared a picture with you"
             for userprofile in users:
                 # TODO: check if the user we are sharing with is actually friends with the sender
@@ -83,7 +80,9 @@ class VlogSerializer(serializers.ModelSerializer):
             shared_with_data = json.loads(validated_data["shared_with"])
             users = UserProfile.objects.filter(pk__in=shared_with_data)
             # FCM notification title and body
-            message_title = self.context['request'].user.username
+            user = self.context['request'].user.userprofile
+            username = "{} {}".format(user.first_name, user.last_name)
+            message_title = username
             message_body = "has shared a vlog with you"
             for userprofile in users:
                 vlog.shared_with.add(userprofile)

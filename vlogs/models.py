@@ -9,7 +9,7 @@ class Album(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.user.username + " - {}".format(self.name)
+        return self.user.user.email + " - {}".format(self.name)
 
 
 class Vlog(models.Model):
@@ -22,7 +22,7 @@ class Vlog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.user.username + "'s vlog object (pk {})".format(self.pk)
+        return self.user.user.email + "'s vlog object (pk {})".format(self.pk)
 
 
 class Photo(models.Model):
@@ -34,7 +34,7 @@ class Photo(models.Model):
     file = models.FileField(default="none")
     iv = models.CharField(max_length=70)
     def __str__(self):
-        return self.user.user.username + "'s photo object (pk {})".format(self.pk)
+        return self.user.user.email + "'s photo object (pk {})".format(self.pk)
 
 
 class Segment(models.Model):
@@ -42,4 +42,4 @@ class Segment(models.Model):
     file = models.FileField(blank=False, null=False)
 
     def __str__(self):
-        return self.vlog.user.user.username + "'s vlog segment (pk {})".format(self.pk)
+        return self.vlog.user.user.email + "'s vlog segment (pk {})".format(self.pk)
