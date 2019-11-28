@@ -1,11 +1,13 @@
 from django.shortcuts import render
-from rest_framework.generics import CreateAPIView, ListAPIView,UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
+from rest_framework.views import APIView
 from .serializers import (VlogSerializer,
 VlogListSerializer,
 AlbumCreateSerializer,
-PhotoSerializer)
+PhotoSerializer,
+PhotoListSerializer)
 from rest_framework.permissions import AllowAny
-from .models import Vlog
+from .models import Vlog, Photo, Album
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -29,12 +31,21 @@ class CreatePhotoView(CreateAPIView):
 class UpdateVlogView(UpdateAPIView):
     serializer_class = VlogSerializer
     queryset = Vlog.objects.all()
-class ListVlogView(ListAPIView):
-    serializer_class = VlogListSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        return Vlog.objects.filter(user=user.userprofile)
+class ListMediaView(APIView):
+    def get(self, request, **kwargs):
+        user = request.user.userprofile
+        vlogs = Vlog.objects.filter(user=user)
+        photos = Photo.objects.filter(user=user)
+
+        vlog_serializer = VlogListSerializer(vlogs, many=True)
+
+        photo_serializer = PhotoListSerializer(photos, many=True)
+
+        return Response({
+        'vlogs': vlog_serializer.data,
+        'photos': photo_serializer.data,
+    })
 
 class ListSharedWithVlogView(ListAPIView):
 

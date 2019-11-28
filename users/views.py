@@ -11,7 +11,7 @@ GenericAPIView,
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-from .models import UserProfile, FriendNotification
+from .models import UserProfile, FriendNotification, User
 from .serializers import (UserProfileSerializer,
 UserCreateSerializer,
 UserProfileUpdateSerializer,
@@ -28,7 +28,6 @@ from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, filters
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from .permissions import IsOwnerOrReadOnly

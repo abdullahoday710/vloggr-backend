@@ -125,6 +125,26 @@ class VlogListSerializer(serializers.ModelSerializer):
         return obj.thumbnail.name
     def get_year(self, obj):
         return obj.timestamp.year
+
+
+class PhotoListSerializer(serializers.ModelSerializer):
+    cipher_object = serializers.JSONField
+    filename = serializers.SerializerMethodField()
+    year = serializers.SerializerMethodField()
+    user = UserProfileShareWithSerializer(read_only=True)
+    timestamp = serializers.DateTimeField()
+    type = serializers.SerializerMethodField()
+    class Meta:
+        model = Photo
+        fields = ['user', 'cipher_object', 'pk', 'filename', 'timestamp', 'year', 'type', 'file', 'iv']
+    def get_filename(self, obj):
+        return obj.file.name
+    def get_year(self, obj):
+        return obj.timestamp.year
+    def get_type(self, obj):
+        return "photo"
+
+
 class AlbumCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
