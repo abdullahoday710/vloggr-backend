@@ -30,7 +30,7 @@ class Vlog(models.Model):
 
 class Photo(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    cipher_object = JSONField()
+    user_ciphers = models.ManyToManyField(UserCipher, related_name="photo_shared_with_data")
     shared_with = models.ManyToManyField(UserProfile, related_name="photo_shared_with",blank=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
