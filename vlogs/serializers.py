@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vlog, Segment, Album, Photo
+from .models import Vlog, Segment, Album, Photo, UserCipher
 from users.models import UserProfile
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -62,15 +62,15 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 class VlogSerializer(serializers.ModelSerializer):
     segments = SegmentSerializer(many=True, read_only=True)
-    cipher_object = serializers.JSONField
+    user_ciphers = serializers.CharField(required=True)
     shared_with = serializers.CharField(required=False)
     album = serializers.IntegerField(required=False)
     class Meta:
         model = Vlog
-        fields = ['playlist', "thumbnail", 'cipher_object', 'pk','segments','shared_with','album']
+        fields = ['playlist', 'thumbnail', 'pk','segments','shared_with','user_ciphers','album']
 
     def create(self, validated_data):
-        vlog = Vlog.objects.create(playlist=validated_data['playlist'], thumbnail=validated_data['thumbnail'], cipher_object=validated_data['cipher_object'], user=self.context['request'].user.userprofile)
+        vlog = Vlog.objects.create(playlist=validated_data['playlist'], thumbnail=validated_data['thumbnail'], user=self.context['request'].user.userprofile)
 
         if "album" in validated_data.keys():
             album = Album.objects.get(pk=album_data)
@@ -78,18 +78,30 @@ class VlogSerializer(serializers.ModelSerializer):
 
         if "shared_with" in validated_data.keys():
             shared_with_data = json.loads(validated_data["shared_with"])
-            users = UserProfile.objects.filter(pk__in=shared_with_data)
+            user_ciphers = json.loads(validated_data['user_ciphers'])
+
             # FCM notification title and body
             user = self.context['request'].user.userprofile
+            shared_with_data.append(user.pk)
+            users = UserProfile.objects.filter(pk__in=shared_with_data)
             username = "{} {}".format(user.first_name, user.last_name)
             message_title = username
             message_body = "has shared a vlog with you"
             for userprofile in users:
+                for user_cipher in user_ciphers.items():
+                    email = user_cipher[0]
+                    cipher = user_cipher[1]
+                    user_cipher_obj = UserCipher(email=email, cipher=cipher)
+                    user_cipher_obj.save()
+                    vlog.user_ciphers.add(user_cipher_obj)
+
                 vlog.shared_with.add(userprofile)
+
                 #FCM PUSH NOTIFICATION
-                registration_id = userprofile.fcm_token
-                if registration_id:
-                    push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
+                if userprofile != user:
+                    registration_id = userprofile.fcm_token
+                    if registration_id:
+                        push_service.notify_single_device(registration_id=registration_id, message_title=message_title, message_body=message_body)
 
         # the request.FILES is temporary and will be used development only,
         # in production we will use amazon s3 urls instead
@@ -106,8 +118,15 @@ class VlogSerializer(serializers.ModelSerializer):
         instance.save()
         return instance.pk
 
+class UserCipherSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    cipher = serializers.CharField()
+    class Meta:
+        model = UserCipher
+        fields = ['email', 'cipher']
+
 class VlogListSerializer(serializers.ModelSerializer):
-    cipher_object = serializers.JSONField
+    user_ciphers = UserCipherSerializer(many=True)
     filename = serializers.SerializerMethodField()
     thumb_filename = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
@@ -116,7 +135,7 @@ class VlogListSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateTimeField()
     class Meta:
         model = Vlog
-        fields = ['user','playlist', "thumbnail", 'cipher_object', 'pk', 'filename', "thumb_filename", "type", 'timestamp', 'year']
+        fields = ['user','playlist', "thumbnail", 'user_ciphers', 'pk', 'filename', "thumb_filename", "type", 'timestamp', 'year']
     def get_type(self, obj):
         return "vlog"
     def get_filename(self, obj):

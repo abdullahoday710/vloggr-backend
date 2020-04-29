@@ -73,7 +73,7 @@ class UserProfile(models.Model):
     private_key = models.TextField()
     salt = models.CharField(max_length=250, default=' ')
     iv = models.CharField(max_length=250, default=' ')
-    friends = models.ManyToManyField(User, related_name="friendlist")
+    friends = models.ManyToManyField(User, related_name="friendlist", blank=True)
     invite_code = models.UUIDField()
     profile_picture = models.FileField(blank=True, null=True, default='anon.jpg')
     fcm_token = models.CharField(blank=True,null=True,max_length=255)

@@ -2,7 +2,10 @@ from django.db import models
 from users.models import UserProfile
 
 from jsonfield import JSONField
-# Create your models here.
+
+class UserCipher(models.Model):
+    email = models.CharField(max_length=100)
+    cipher = models.CharField(max_length=200)
 
 class Album(models.Model):
     name = models.CharField(max_length=30)
@@ -16,7 +19,7 @@ class Vlog(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     playlist = models.FileField(default="none")
     thumbnail = models.FileField(default="none")
-    cipher_object = JSONField(default="none")
+    user_ciphers = models.ManyToManyField(UserCipher, related_name="shared_with_data")
     shared_with = models.ManyToManyField(UserProfile, related_name="shared_with",blank=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)

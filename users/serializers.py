@@ -59,9 +59,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class CurrentUserProfileSerializer(serializers.ModelSerializer):
     friends = UserFriendListSerializer(many=True)
     username = serializers.SerializerMethodField()
+    user = UserSerializer()
     class Meta:
         model = UserProfile
-        fields = ['public_key', 'private_key', 'salt', 'iv', 'profile_picture', 'invite_code', 'friends', 'username']
+        fields = ['public_key', 'private_key', 'salt', 'iv', 'profile_picture', 'invite_code', 'friends', 'username', 'user']
 
     def get_username(self, obj):
         return "{} {}".format(obj.first_name, obj.last_name)
