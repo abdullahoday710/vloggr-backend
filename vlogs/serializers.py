@@ -6,7 +6,7 @@ from django.utils import timezone
 import json
 from pyfcm import FCMNotification
 
-push_service = FCMNotification(api_key="AAAAZTWbYVk:APA91bGMF7cH4DZwszkiMyysKIoh8rU55OiXr-F4_lQiWiBZ9_cNYFeuLQi87ApCDCF0SM2yBPFSJ6-ToNd1_8wJaWe2vPj90qz4oDF0IwJIuXBn6_k08JQJAC-2LnSLfyIEr77kTLk8")
+push_service = FCMNotification(api_key="###################################")
 
 
 class SegmentSerializer(serializers.ModelSerializer):
